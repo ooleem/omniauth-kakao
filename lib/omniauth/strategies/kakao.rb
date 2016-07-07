@@ -31,6 +31,10 @@ module OmniAuth
         options[:callback_path] = options[:redirect_path] || DEFAULT_REDIRECT_PATH
       end
 
+      def callback_url
+        options[:callback_url] || (full_host + script_name + callback_path)
+      end
+
       def callback_phase
         previous_callback_path = options.delete(:callback_path)
         @env["PATH_INFO"] = callback_path
