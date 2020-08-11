@@ -17,13 +17,13 @@ module OmniAuth
 
       info do
         {
-          'name' => raw_properties['nickname'],
-          'image' => raw_properties['thumbnail_image'],
+          'name' => raw_profile['nickname'],
+          'image' => raw_profile['thumbnail_image_url'],
         }
       end
 
       extra do
-        {'properties' => raw_properties}
+        {'properties' => raw_profile}
       end
 
       def initialize(app, *args, &block)
@@ -49,11 +49,30 @@ module OmniAuth
 
     private
       def raw_info
-        @raw_info ||= access_token.get('https://kapi.kakao.com/v1/user/me', {}).parsed || {}
+        # {
+        #   "id": 10000,
+        #   "connected_at": "2015-09-22T00:25:11Z",
+        #   "properties": {
+        #     "nickname": "홍길동"
+        #   },
+        #   "kakao_account": {
+        #     "profile_needs_agreement": false,
+        #     "profile": {
+        #       "nickname": "홍길동",
+        #       "thumbnail_image_url": "http://image.com",
+        #       "profile_image_url": "http://image.com"
+        #     }
+        #   }
+        # }
+        @raw_info ||= access_token.get('https://kapi.kakao.com/v2/user/me', {}).parsed || {}
       end
 
-      def raw_properties
-        @raw_properties ||= raw_info['properties'] || {}
+      def kakao_account
+        @kakao_account ||= raw_info['kakao_account'] || {}
+      end
+
+      def raw_profile
+        @raw_profile ||= kakao_account['profile'] || {}
       end
     end
   end
